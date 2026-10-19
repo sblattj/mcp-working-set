@@ -22,7 +22,7 @@ S-T: instead of handing the model the whole phone book, the proxy hands it the 2
 Requires [Bun](https://bun.sh) 1.3 or newer.
 
 ```sh
-git clone <this repo> mcp-working-set && cd mcp-working-set
+git clone https://github.com/sblattj/mcp-working-set.git && cd mcp-working-set
 bun install
 bun run src/cli.ts init      # writes ~/.config/mcp-working-set/config.json
 # edit "upstream" in that file, then:

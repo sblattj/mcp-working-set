@@ -1,6 +1,6 @@
-// NOTE for the orchestrator: ../config.ts did not exist while this seat worked, so this is a
-// local, structurally identical subset of the shared Config contract. Once src/config.ts
-// exports `Config`, replace this block with `import type { Config } from "../config.ts"`.
+// The promoter accepts a PARTIAL config (every field optional, defaults applied in
+// promoteMain), so callers and tests can pass only what they set. src/config.ts's resolved
+// `Config` is structurally assignable to this one.
 export interface PromoteSettings {
   minSessions?: number;
   minCalls?: number;
