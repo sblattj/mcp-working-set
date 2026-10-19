@@ -1,0 +1,2594 @@
+[
+ {
+  "name": "mail_search_messages",
+  "description": "Search messages in the mailbox with a query string (from:, to:, subject:, has:attachment, before:, after:). Returns message ids, senders, subjects and snippets.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Mail Search MessagesArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "query": {
+     "title": "Query",
+     "type": "string",
+     "description": "Search query."
+    },
+    "page_size": {
+     "title": "Page Size",
+     "anyOf": [
+      {
+       "type": "integer",
+       "description": "Results per page",
+       "minimum": 1,
+       "maximum": 100
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Results per page (default 25)."
+    }
+   },
+   "required": [
+    "query"
+   ]
+  }
+ },
+ {
+  "name": "mail_get_message",
+  "description": "Fetch one message by id: headers, plain-text body and the list of attachments.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "message_id": {
+     "type": "string",
+     "description": "Message id from search."
+    }
+   },
+   "required": [
+    "message_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_get_thread",
+  "description": "Fetch a whole conversation thread by thread id, every message in order.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "thread_id": {
+     "type": "string",
+     "description": "Thread id."
+    }
+   },
+   "required": [
+    "thread_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_send_message",
+  "description": "Send a new email message. Supports to, cc, bcc, subject, a plain-text or HTML body and file attachments.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Mail Send MessageArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "to": {
+     "title": "To",
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Recipients."
+    },
+    "cc": {
+     "title": "Cc",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Cc recipients."
+    },
+    "subject": {
+     "title": "Subject",
+     "type": "string",
+     "description": "Subject line."
+    },
+    "body": {
+     "title": "Body",
+     "type": "string",
+     "description": "Message body."
+    },
+    "html": {
+     "title": "Html",
+     "type": "boolean",
+     "description": "Body is HTML.",
+     "default": false
+    }
+   },
+   "required": [
+    "to",
+    "subject",
+    "body"
+   ]
+  }
+ },
+ {
+  "name": "mail_create_draft",
+  "description": "Create a draft message without sending it, optionally as a reply in an existing thread.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "to": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "subject": {
+     "type": "string",
+     "description": "Subject."
+    },
+    "body": {
+     "type": "string",
+     "description": "Body."
+    },
+    "thread_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Thread to reply in."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Thread id when the draft is a reply."
+    }
+   },
+   "required": [
+    "body"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_reply_to_message",
+  "description": "Reply to a message in its thread, quoting the original. Reply-all when all=true.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "message_id": {
+     "type": "string",
+     "description": "Message to answer."
+    },
+    "body": {
+     "type": "string",
+     "description": "Reply text."
+    },
+    "all": {
+     "type": "boolean",
+     "description": "Reply to all recipients.",
+     "default": false
+    }
+   },
+   "required": [
+    "message_id",
+    "body"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_list_labels",
+  "description": "List the mailbox's labels (folders), system and user-created, with unread counts.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Mail List LabelsArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    }
+   }
+  }
+ },
+ {
+  "name": "mail_modify_labels",
+  "description": "Add or remove labels on one or more messages: archive, mark read or unread, star, move to a folder.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "message_ids": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "add": {
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Labels to add."
+    },
+    "remove": {
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Labels to remove."
+    }
+   },
+   "required": [
+    "message_ids"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_trash_message",
+  "description": "Move a message to the trash. It is deleted for good after 30 days.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "message_id": {
+     "type": "string",
+     "description": "Message id."
+    }
+   },
+   "required": [
+    "message_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_get_attachment",
+  "description": "Download an attachment from a message and save it to a local file path.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Mail Get AttachmentArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "message_id": {
+     "title": "Message Id",
+     "type": "string",
+     "description": "Message id."
+    },
+    "attachment_id": {
+     "title": "Attachment Id",
+     "type": "string",
+     "description": "Attachment id."
+    },
+    "save_to": {
+     "title": "Save To",
+     "type": "string",
+     "description": "Local path to write."
+    }
+   },
+   "required": [
+    "message_id",
+    "attachment_id"
+   ]
+  }
+ },
+ {
+  "name": "mail_create_filter",
+  "description": "Create a mail filter rule: match by sender, subject or words and apply labels, skip the inbox, forward or delete automatically.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "criteria": {
+     "type": "object",
+     "properties": {
+      "from": {
+       "type": "string",
+       "description": "Sender."
+      },
+      "subject": {
+       "type": "string",
+       "description": "Subject words."
+      }
+     }
+    },
+    "action": {
+     "type": "object",
+     "properties": {
+      "add_labels": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "skip_inbox": {
+       "type": "boolean",
+       "description": "Archive on arrival."
+      }
+     }
+    }
+   },
+   "required": [
+    "criteria",
+    "action"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "mail_set_vacation_responder",
+  "description": "Turn the out-of-office auto-reply on or off, with its subject, message and date range.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "enabled": {
+     "type": "boolean",
+     "description": "On or off."
+    },
+    "subject": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Subject."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Auto-reply subject."
+    },
+    "message": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Text."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Auto-reply text."
+    }
+   },
+   "required": [
+    "enabled"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_list_calendars",
+  "description": "List the calendars this account can see, with ids, colors and access role.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Calendar List CalendarsArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    }
+   }
+  }
+ },
+ {
+  "name": "calendar_list_events",
+  "description": "List events on a calendar between two times, optionally filtered by a text query. Returns title, start, end, attendees and location.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "time_min": {
+     "type": "string",
+     "description": "Start of range, RFC 3339."
+    },
+    "time_max": {
+     "type": "string",
+     "description": "End of range, RFC 3339."
+    },
+    "query": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Free text."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Text filter."
+    }
+   },
+   "required": [
+    "time_min"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_get_event",
+  "description": "Fetch one event by id with its full details: description, conferencing link, attendees and their responses.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "event_id": {
+     "type": "string",
+     "description": "Event id."
+    }
+   },
+   "required": [
+    "event_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_create_event",
+  "description": "Create a calendar event or meeting with title, start, end, attendees, location and an optional video conference link. Sends invitations to attendees.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Calendar Create EventArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "title": "Calendar Id",
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "summary": {
+     "title": "Summary",
+     "type": "string",
+     "description": "Event title."
+    },
+    "start": {
+     "title": "Start",
+     "type": "string",
+     "description": "Start time."
+    },
+    "end": {
+     "title": "End",
+     "type": "string",
+     "description": "End time."
+    },
+    "attendees": {
+     "title": "Attendees",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Guest addresses."
+    },
+    "add_conference": {
+     "title": "Add Conference",
+     "type": "boolean",
+     "description": "Attach a video call link.",
+     "default": false
+    }
+   },
+   "required": [
+    "summary",
+    "start",
+    "end"
+   ]
+  }
+ },
+ {
+  "name": "calendar_update_event",
+  "description": "Change an existing event: reschedule it, rename it, edit attendees or location.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "event_id": {
+     "type": "string",
+     "description": "Event id."
+    },
+    "start": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "New start."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "New start."
+    },
+    "end": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "New end."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "New end."
+    },
+    "summary": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "New title."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "New title."
+    }
+   },
+   "required": [
+    "event_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_delete_event",
+  "description": "Delete (cancel) an event and optionally notify the guests.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "event_id": {
+     "type": "string",
+     "description": "Event id."
+    },
+    "notify": {
+     "type": "boolean",
+     "description": "Email guests.",
+     "default": true
+    }
+   },
+   "required": [
+    "event_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_respond_to_event",
+  "description": "Accept, decline or tentatively accept an invitation you received.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Calendar Respond To EventArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "title": "Calendar Id",
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "event_id": {
+     "title": "Event Id",
+     "type": "string",
+     "description": "Event id."
+    },
+    "response": {
+     "title": "Response",
+     "type": "string",
+     "description": "Your answer.",
+     "enum": [
+      "accepted",
+      "declined",
+      "tentative"
+     ]
+    }
+   },
+   "required": [
+    "event_id",
+    "response"
+   ]
+  }
+ },
+ {
+  "name": "calendar_find_free_time",
+  "description": "Find free/busy slots: given people and a time window, return the intervals when everyone is available.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "emails": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "time_min": {
+     "type": "string",
+     "description": "Window start."
+    },
+    "time_max": {
+     "type": "string",
+     "description": "Window end."
+    },
+    "duration_minutes": {
+     "type": "integer",
+     "description": "Slot length.",
+     "default": 30
+    }
+   },
+   "required": [
+    "emails",
+    "time_min",
+    "time_max"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_quick_add",
+  "description": "Create an event from one line of natural language, like 'Team lunch Friday 1pm'.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "text": {
+     "type": "string",
+     "description": "The sentence."
+    }
+   },
+   "required": [
+    "text"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "calendar_list_reminders",
+  "description": "List the default reminder and notification settings for a calendar.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Calendar List RemindersArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "title": "Calendar Id",
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    }
+   }
+  }
+ },
+ {
+  "name": "calendar_share_calendar",
+  "description": "Share a calendar with another person and set their access role (free/busy, reader, writer, owner).",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "calendar_id": {
+     "type": "string",
+     "description": "Calendar id; 'primary' for the main calendar.",
+     "default": "primary"
+    },
+    "email": {
+     "type": "string",
+     "description": "Who to share with."
+    },
+    "role": {
+     "type": "string",
+     "description": "Access role.",
+     "enum": [
+      "freeBusyReader",
+      "reader",
+      "writer",
+      "owner"
+     ]
+    }
+   },
+   "required": [
+    "email",
+    "role"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_search_files",
+  "description": "Search files and folders in the drive by name, type or full text. Returns ids, names, mime types and modified time.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "query": {
+     "type": "string",
+     "description": "Search text."
+    },
+    "mime_type": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Filter by type."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Mime type filter."
+    },
+    "page_size": {
+     "anyOf": [
+      {
+       "type": "integer",
+       "description": "Results per page",
+       "minimum": 1,
+       "maximum": 100
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Results per page (default 25)."
+    }
+   },
+   "required": [
+    "query"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_list_folder",
+  "description": "List the contents of a folder by folder id (root when omitted).",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Drive List FolderArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "folder_id": {
+     "title": "Folder Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Folder id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Folder id; root when omitted."
+    }
+   }
+  }
+ },
+ {
+  "name": "drive_get_file_content",
+  "description": "Read a file's content as text. Documents export to markdown, spreadsheets to CSV, PDFs to extracted text.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "file_id": {
+     "type": "string",
+     "description": "File id."
+    }
+   },
+   "required": [
+    "file_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_upload_file",
+  "description": "Upload a local file into the drive, into a given folder, optionally converting it to a native document.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "path": {
+     "type": "string",
+     "description": "Local file path."
+    },
+    "folder_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Destination."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Destination folder."
+    },
+    "convert": {
+     "type": "boolean",
+     "description": "Convert to native format.",
+     "default": false
+    }
+   },
+   "required": [
+    "path"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_create_folder",
+  "description": "Create a new folder, optionally inside a parent folder.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Drive Create FolderArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "name": {
+     "title": "Name",
+     "type": "string",
+     "description": "Folder name."
+    },
+    "parent_id": {
+     "title": "Parent Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Parent."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Parent folder id."
+    }
+   },
+   "required": [
+    "name"
+   ]
+  }
+ },
+ {
+  "name": "drive_move_file",
+  "description": "Move or rename a file: change its parent folder and/or its name.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "file_id": {
+     "type": "string",
+     "description": "File id."
+    },
+    "new_parent_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "New folder."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Target folder."
+    },
+    "new_name": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "New name."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "New name."
+    }
+   },
+   "required": [
+    "file_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_delete_file",
+  "description": "Move a file or folder to the trash, or delete it permanently.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "file_id": {
+     "type": "string",
+     "description": "File id."
+    },
+    "permanent": {
+     "type": "boolean",
+     "description": "Skip the trash.",
+     "default": false
+    }
+   },
+   "required": [
+    "file_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_share_file",
+  "description": "Share a file or folder: grant a person or a whole domain viewer, commenter or editor permission, or make it link-shareable.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Drive Share FileArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "file_id": {
+     "title": "File Id",
+     "type": "string",
+     "description": "File id."
+    },
+    "email": {
+     "title": "Email",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Grantee."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Person to share with."
+    },
+    "role": {
+     "title": "Role",
+     "type": "string",
+     "description": "Permission.",
+     "enum": [
+      "reader",
+      "commenter",
+      "writer"
+     ]
+    },
+    "anyone_with_link": {
+     "title": "Anyone With Link",
+     "type": "boolean",
+     "description": "Link sharing.",
+     "default": false
+    }
+   },
+   "required": [
+    "file_id",
+    "role"
+   ]
+  }
+ },
+ {
+  "name": "drive_list_permissions",
+  "description": "List who has access to a file and with which role.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "file_id": {
+     "type": "string",
+     "description": "File id."
+    }
+   },
+   "required": [
+    "file_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_create_document",
+  "description": "Create a new text document with a title and optional initial markdown content.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "title": {
+     "type": "string",
+     "description": "Document title."
+    },
+    "content": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Markdown."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Initial content."
+    }
+   },
+   "required": [
+    "title"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_append_to_document",
+  "description": "Append or insert text into an existing document, at the end or at a given index.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Drive Append To DocumentArguments",
+   "type": "object",
+   "properties": {
+    "account": {
+     "title": "Account",
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "document_id": {
+     "title": "Document Id",
+     "type": "string",
+     "description": "Document id."
+    },
+    "text": {
+     "title": "Text",
+     "type": "string",
+     "description": "Text to insert."
+    },
+    "index": {
+     "title": "Index",
+     "anyOf": [
+      {
+       "type": "integer",
+       "description": "Position."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Insert position; end when omitted."
+    }
+   },
+   "required": [
+    "document_id",
+    "text"
+   ]
+  }
+ },
+ {
+  "name": "drive_read_sheet_range",
+  "description": "Read cell values from a spreadsheet range in A1 notation, e.g. Sheet1!A1:D20.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "spreadsheet_id": {
+     "type": "string",
+     "description": "Spreadsheet id."
+    },
+    "range": {
+     "type": "string",
+     "description": "A1 range."
+    }
+   },
+   "required": [
+    "spreadsheet_id",
+    "range"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "drive_write_sheet_range",
+  "description": "Write or update cell values in a spreadsheet range; rows are arrays of values. Can append rows below existing data.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "account": {
+     "type": "string",
+     "description": "Account address, e.g. user@example.com."
+    },
+    "spreadsheet_id": {
+     "type": "string",
+     "description": "Spreadsheet id."
+    },
+    "range": {
+     "type": "string",
+     "description": "A1 range."
+    },
+    "values": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "items": {}
+     }
+    },
+    "append": {
+     "type": "boolean",
+     "description": "Append below data.",
+     "default": false
+    }
+   },
+   "required": [
+    "spreadsheet_id",
+    "range",
+    "values"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_navigate",
+  "description": "Open a URL in the current tab (or a new tab) and wait for the page to load.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Browser NavigateArguments",
+   "type": "object",
+   "properties": {
+    "url": {
+     "title": "Url",
+     "type": "string",
+     "description": "Address to open."
+    },
+    "new_tab": {
+     "title": "New Tab",
+     "type": "boolean",
+     "description": "Open in a new tab.",
+     "default": false
+    },
+    "tab_id": {
+     "title": "Tab Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    }
+   },
+   "required": [
+    "url"
+   ]
+  }
+ },
+ {
+  "name": "browser_list_tabs",
+  "description": "List open tabs with their ids, titles and URLs.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {},
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_close_tab",
+  "description": "Close a tab by id.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "type": "string",
+     "description": "Tab id."
+    }
+   },
+   "required": [
+    "tab_id"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_snapshot",
+  "description": "Capture the page's accessibility tree as text: every visible element with a ref usable by click and type. Prefer this over a screenshot to read a page.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Browser SnapshotArguments",
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "title": "Tab Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    }
+   }
+  }
+ },
+ {
+  "name": "browser_screenshot",
+  "description": "Take a screenshot of the visible page, the full page or one element, saved as PNG.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "full_page": {
+     "type": "boolean",
+     "description": "Whole page.",
+     "default": false
+    },
+    "element_ref": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Element."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Element ref from a snapshot."
+    }
+   },
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_click",
+  "description": "Click an element on the page by its ref from a snapshot. Supports double and right click.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "ref": {
+     "type": "string",
+     "description": "Element ref."
+    },
+    "button": {
+     "type": "string",
+     "description": "Mouse button.",
+     "enum": [
+      "left",
+      "right",
+      "middle"
+     ],
+     "default": "left"
+    },
+    "double": {
+     "type": "boolean",
+     "description": "Double click.",
+     "default": false
+    }
+   },
+   "required": [
+    "ref"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_type_text",
+  "description": "Type text into an input or textarea by ref, optionally pressing Enter afterwards.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Browser Type TextArguments",
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "title": "Tab Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "ref": {
+     "title": "Ref",
+     "type": "string",
+     "description": "Element ref."
+    },
+    "text": {
+     "title": "Text",
+     "type": "string",
+     "description": "Text to type."
+    },
+    "submit": {
+     "title": "Submit",
+     "type": "boolean",
+     "description": "Press Enter after.",
+     "default": false
+    }
+   },
+   "required": [
+    "ref",
+    "text"
+   ]
+  }
+ },
+ {
+  "name": "browser_press_key",
+  "description": "Press a keyboard key or chord, e.g. Escape, Tab, ArrowDown, Control+A.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "key": {
+     "type": "string",
+     "description": "Key or chord."
+    }
+   },
+   "required": [
+    "key"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_fill_form",
+  "description": "Fill several form fields at once: a list of element refs and values, including selects and checkboxes.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "fields": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "ref": {
+        "type": "string"
+       },
+       "value": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "ref",
+       "value"
+      ]
+     }
+    }
+   },
+   "required": [
+    "fields"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_evaluate",
+  "description": "Run a JavaScript expression in the page and return its JSON-serializable result.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Browser EvaluateArguments",
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "title": "Tab Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "expression": {
+     "title": "Expression",
+     "type": "string",
+     "description": "JavaScript to evaluate."
+    }
+   },
+   "required": [
+    "expression"
+   ]
+  }
+ },
+ {
+  "name": "browser_wait_for",
+  "description": "Wait until some text appears or disappears on the page, or for a fixed time.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "text": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Text."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Text to wait for."
+    },
+    "gone": {
+     "type": "boolean",
+     "description": "Wait for it to disappear.",
+     "default": false
+    },
+    "seconds": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Fixed wait."
+    }
+   },
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_network_requests",
+  "description": "List network requests made by the page since it loaded: URL, method, status and timing.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "filter": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "URL substring."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Only URLs containing this."
+    }
+   },
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "browser_console_messages",
+  "description": "Return console log, warning and error messages printed by the page.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Browser Console MessagesArguments",
+   "type": "object",
+   "properties": {
+    "tab_id": {
+     "title": "Tab Id",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Tab id."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Tab id; the active tab when omitted."
+    },
+    "level": {
+     "title": "Level",
+     "type": "string",
+     "description": "Minimum level.",
+     "enum": [
+      "log",
+      "warning",
+      "error"
+     ],
+     "default": "log"
+    }
+   }
+  }
+ },
+ {
+  "name": "codesearch_search_code",
+  "description": "Full-text and regex search across indexed source code. Filter by repository, language and path glob. Returns file paths, line numbers and matching lines.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Text or regex."
+    },
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "language": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Language."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Language filter."
+    },
+    "path_glob": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Glob."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Path filter."
+    },
+    "regex": {
+     "type": "boolean",
+     "description": "Treat query as regex.",
+     "default": false
+    }
+   },
+   "required": [
+    "query"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_find_symbol",
+  "description": "Find where a function, class or variable is defined, by symbol name, across indexed repositories.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "type": "string",
+     "description": "Symbol name."
+    },
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "kind": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Kind.",
+       "enum": [
+        "function",
+        "class",
+        "method",
+        "variable"
+       ]
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Symbol kind."
+    }
+   },
+   "required": [
+    "symbol"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_find_references",
+  "description": "Find every call site or usage of a symbol (who calls this function).",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Codesearch Find ReferencesArguments",
+   "type": "object",
+   "properties": {
+    "symbol": {
+     "title": "Symbol",
+     "type": "string",
+     "description": "Symbol name."
+    },
+    "repo": {
+     "title": "Repo",
+     "type": "string",
+     "description": "Repository, owner/name."
+    }
+   },
+   "required": [
+    "symbol"
+   ]
+  }
+ },
+ {
+  "name": "codesearch_read_file",
+  "description": "Read a source file from an indexed repository at a given revision, optionally a line range.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "path": {
+     "type": "string",
+     "description": "File path."
+    },
+    "ref": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Branch, tag or commit."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Revision."
+    },
+    "start_line": {
+     "anyOf": [
+      {
+       "type": "integer",
+       "description": "First line."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "First line."
+    },
+    "end_line": {
+     "anyOf": [
+      {
+       "type": "integer",
+       "description": "Last line."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Last line."
+    }
+   },
+   "required": [
+    "repo",
+    "path"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_list_repositories",
+  "description": "List the repositories that are indexed and searchable, with default branch and last index time.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "owner": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Owner filter."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Only this owner."
+    }
+   },
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_index_repository",
+  "description": "Add a repository to the index or re-index it after new commits.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Codesearch Index RepositoryArguments",
+   "type": "object",
+   "properties": {
+    "url": {
+     "title": "Url",
+     "type": "string",
+     "description": "Clone URL."
+    },
+    "branch": {
+     "title": "Branch",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Branch."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Branch to index."
+    }
+   },
+   "required": [
+    "url"
+   ]
+  }
+ },
+ {
+  "name": "codesearch_commit_history",
+  "description": "Show the commit log for a repository or a single file: author, date, message.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "path": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "File."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Only commits touching this path."
+    },
+    "limit": {
+     "type": "integer",
+     "description": "Max commits.",
+     "default": 20
+    }
+   },
+   "required": [
+    "repo"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_blame",
+  "description": "Line-by-line blame for a file: which commit and author last changed each line.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "path": {
+     "type": "string",
+     "description": "File path."
+    }
+   },
+   "required": [
+    "repo",
+    "path"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_diff",
+  "description": "Diff between two revisions of a repository, optionally limited to a path.",
+  "inputSchema": {
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Codesearch DiffArguments",
+   "type": "object",
+   "properties": {
+    "repo": {
+     "title": "Repo",
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "base": {
+     "title": "Base",
+     "type": "string",
+     "description": "Base revision."
+    },
+    "head": {
+     "title": "Head",
+     "type": "string",
+     "description": "Head revision."
+    },
+    "path": {
+     "title": "Path",
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Path."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Path filter."
+    }
+   },
+   "required": [
+    "repo",
+    "base",
+    "head"
+   ]
+  }
+ },
+ {
+  "name": "codesearch_list_pull_requests",
+  "description": "List pull requests for a repository, filtered by state and author.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "state": {
+     "type": "string",
+     "description": "PR state.",
+     "enum": [
+      "open",
+      "closed",
+      "merged",
+      "all"
+     ],
+     "default": "open"
+    },
+    "author": {
+     "anyOf": [
+      {
+       "type": "string",
+       "description": "Author."
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Author filter."
+    }
+   },
+   "required": [
+    "repo"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "codesearch_hotspot_report",
+  "description": "Rank files in a repository by a weighted hotspot score combining complexity, churn, coverage and ownership metrics, with per-metric bounds and weights.",
+  "inputSchema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository, owner/name."
+    },
+    "min_complexity": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the complexity metric. Files whose complexity value is below this are excluded from the report."
+    },
+    "max_complexity": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the complexity metric. Files whose complexity value is above this are excluded from the report."
+    },
+    "weight_complexity": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the complexity metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_churn": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the churn metric. Files whose churn value is below this are excluded from the report."
+    },
+    "max_churn": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the churn metric. Files whose churn value is above this are excluded from the report."
+    },
+    "weight_churn": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the churn metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_coverage": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the coverage metric. Files whose coverage value is below this are excluded from the report."
+    },
+    "max_coverage": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the coverage metric. Files whose coverage value is above this are excluded from the report."
+    },
+    "weight_coverage": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the coverage metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_size": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the size metric. Files whose size value is below this are excluded from the report."
+    },
+    "max_size": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the size metric. Files whose size value is above this are excluded from the report."
+    },
+    "weight_size": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the size metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_age": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the age metric. Files whose age value is below this are excluded from the report."
+    },
+    "max_age": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the age metric. Files whose age value is above this are excluded from the report."
+    },
+    "weight_age": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the age metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_owners": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the owners metric. Files whose owners value is below this are excluded from the report."
+    },
+    "max_owners": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the owners metric. Files whose owners value is above this are excluded from the report."
+    },
+    "weight_owners": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the owners metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_imports": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the imports metric. Files whose imports value is below this are excluded from the report."
+    },
+    "max_imports": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the imports metric. Files whose imports value is above this are excluded from the report."
+    },
+    "weight_imports": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the imports metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_exports": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the exports metric. Files whose exports value is below this are excluded from the report."
+    },
+    "max_exports": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the exports metric. Files whose exports value is above this are excluded from the report."
+    },
+    "weight_exports": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the exports metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_tests": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the tests metric. Files whose tests value is below this are excluded from the report."
+    },
+    "max_tests": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the tests metric. Files whose tests value is above this are excluded from the report."
+    },
+    "weight_tests": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the tests metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_issues": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the issues metric. Files whose issues value is below this are excluded from the report."
+    },
+    "max_issues": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the issues metric. Files whose issues value is above this are excluded from the report."
+    },
+    "weight_issues": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the issues metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_lint": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the lint metric. Files whose lint value is below this are excluded from the report."
+    },
+    "max_lint": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the lint metric. Files whose lint value is above this are excluded from the report."
+    },
+    "weight_lint": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the lint metric in the combined hotspot score, between 0 and 1."
+    },
+    "min_deps": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower bound for the deps metric. Files whose deps value is below this are excluded from the report."
+    },
+    "max_deps": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Upper bound for the deps metric. Files whose deps value is above this are excluded from the report."
+    },
+    "weight_deps": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Weight of the deps metric in the combined hotspot score, between 0 and 1."
+    }
+   },
+   "required": [
+    "repo"
+   ],
+   "additionalProperties": false
+  }
+ }
+]
