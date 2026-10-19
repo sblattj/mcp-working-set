@@ -48,7 +48,7 @@ Use the same name as `serverName` in the config (default `toolbox`): the promote
 url = "http://127.0.0.1:4484/mcp"
 ```
 
-**Any other client**: a Streamable HTTP MCP server at `http://127.0.0.1:4484/mcp`. Both the stateless 2026-07-28 protocol and the older session-based protocol are served.
+**Any other client**: a Streamable HTTP MCP server at `http://127.0.0.1:4484/mcp`. Clients on the stateless 2026-07-28 protocol and older (2025) clients are both served.
 
 Then keep the working set fresh, for example from cron or a launchd/systemd timer:
 
@@ -66,7 +66,7 @@ The proxy talks to the upstream through the official MCP TypeScript SDK client (
 | upstream | how |
 |---|---|
 | Streamable HTTP, 2026-07-28 (stateless) | probed with `server/discover`; every request then carries `MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name` and the per-request `_meta` envelope (the SDK adds them) |
-| Streamable HTTP, 2025 (session-based) | falls back to the `initialize` handshake and an `Mcp-Session-Id` session; an expired session is re-opened on the next `tools/list` |
+| Streamable HTTP, 2025 (session-based) | falls back to the `initialize` handshake and an `Mcp-Session-Id` session; an expired session is re-opened on the next `tools/list` (a `tools/call` that lands on the expired session fails once; calls are not retried because they may have side effects) |
 | stdio command | spawned as a child process, same negotiation |
 
 On the stateless protocol the proxy also names the calling client in the forwarded request (`clientInfo.name = mcp-working-set/<client>`). On the session-based protocol and stdio the upstream only sees the proxy's own name.
