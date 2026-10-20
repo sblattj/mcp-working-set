@@ -12,7 +12,7 @@ function isObj(v: unknown): v is Record<string, unknown> {
 /** Claude Code project transcripts: <root>/**\/*.jsonl */
 export const claudeCodeAdapter: TranscriptAdapter = {
   type: "claude-code",
-  async scan(root, serverName): Promise<ScanResult> {
+  async scan(root, serverName, aliases = {}): Promise<ScanResult> {
     const events: UsageEvent[] = [];
     const prefixes: Record<string, number> = {};
     const own = `mcp__${serverName}__`;
@@ -61,8 +61,19 @@ export const claudeCodeAdapter: TranscriptAdapter = {
           if (typeof nm !== "string" || !nm.startsWith("mcp__")) continue;
           const server = nm.split("__")[1] ?? "";
           prefixes[server] = (prefixes[server] ?? 0) + 1;
-          if (!nm.startsWith(own)) continue;
-          let tool: string | undefined = nm.slice(own.length);
+          let tool: string | undefined;
+          if (nm.startsWith(own)) {
+            tool = nm.slice(own.length);
+          } else if (Object.hasOwn(aliases, server)) {
+            // A call made through another registration of the same backend, e.g. a directly
+            // registered server: mcp__<server>__<tool> counts as <backend>_<tool>.
+            const rest = nm.slice(`mcp__${server}__`.length);
+            if (rest) events.push({ tool: `${aliases[server]}_${rest}`, ts, session, ok: true });
+            if (rest && typeof it.id === "string" && it.id) pending.set(it.id, events.length - 1);
+            continue;
+          } else {
+            continue;
+          }
           if (tool === "call_tool") {
             const name = isObj(it.input) ? it.input.name : undefined;
             tool = typeof name === "string" && name ? name : undefined;

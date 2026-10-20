@@ -185,6 +185,18 @@ describe("transcript parsing", () => {
     write([entry("mcp__gw__mail_a", 1, { sid: "A" }), entry("mcp__gw__mail_a", 1, { sid: "B" })]);
     expect((await run({ serverName: "gw" })).promoted).toContain("mail_a");
   });
+  test("serverAliases count another server's calls as <backend>_<tool>", async () => {
+    write([
+      entry("mcp__old-mail__search", 1, { sid: "A", uid: "u1" }), entry("mcp__old-mail__search", 1, { sid: "B", uid: "u2" }),
+      entry("mcp__other__search", 1, { sid: "A" }), result("u2", true, "B"),
+    ]);
+    const r = await claudeCodeAdapter.scan(join(d, "p"), "toolbox", { "old-mail": "mail" });
+    expect(r.events.map((e) => [e.tool, e.ok])).toEqual([["mail_search", true], ["mail_search", false]]);
+    expect(r.prefixes).toEqual({ "old-mail": 2, other: 1 });
+    write([entry("mcp__old-mail__search", 1, { sid: "A" }), entry("mcp__old-mail__search", 1, { sid: "B" })]);
+    expect((await run()).promoted).not.toContain("mail_search");
+    expect((await run({ serverAliases: { "old-mail": "mail" } })).promoted).toContain("mail_search");
+  });
 });
 
 describe("call log", () => {

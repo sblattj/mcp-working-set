@@ -17,6 +17,7 @@ export interface TranscriptSource {
 export interface Config {
   stateDir?: string;
   serverName?: string;
+  serverAliases?: Record<string, string>;
   pins?: string[];
   pinFiles?: string[];
   promote?: PromoteSettings;
@@ -76,7 +77,7 @@ export interface Decision {
 /** A transcript source adapter: yields usage events from some client's session logs. */
 export interface TranscriptAdapter {
   readonly type: string;
-  scan(root: string, serverName: string): Promise<ScanResult>;
+  scan(root: string, serverName: string, aliases?: Record<string, string>): Promise<ScanResult>;
 }
 
 export interface ScanResult {

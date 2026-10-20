@@ -77,7 +77,7 @@ async function compute(config: Config, args: Args, fetchCatalog?: CatalogFetcher
       console.error(`unknown transcript adapter "${src.type}"; skipping`);
       continue;
     }
-    const r = await adapter.scan(expandHome(src.root), serverName);
+    const r = await adapter.scan(expandHome(src.root), serverName, config.serverAliases ?? {});
     events.push(...r.events);
     for (const [k, v] of Object.entries(r.prefixes)) prefixes[k] = (prefixes[k] ?? 0) + v;
   }

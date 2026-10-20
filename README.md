@@ -95,6 +95,7 @@ One JSON file. Path: `--config <path>`, else `$MWS_CONFIG`, else `~/.config/mcp-
 | `listen` | where the proxy listens. Loopback only: the listener validates `Host` and `Origin` against localhost and refuses a non-loopback `host` |
 | `stateDir` | holds `working-set.json`, `calls.jsonl` (call and search log) and `catalog.json` (last-good upstream catalog) |
 | `serverName` | the name your client registered the proxy under; used in the generated server instructions and to find `mcp__<serverName>__<tool>` calls in transcripts |
+| `serverAliases` | other MCP server names whose transcript calls also count, mapped to a backend prefix: `{ "old-mail": "mail" }` counts `mcp__old-mail__search` as `mail_search`. Use it when the same backend is (or was) also registered directly |
 | `backendHints` | short labels per backend prefix (`mail` in `mail_send_message`), shown in the server instructions and the `search_tools` description |
 | `pins` | tool names that are always listed and never decay |
 | `pinFiles` | globs of Markdown files whose front matter may carry `working-set-pins: [tool_a, tool_b]` (for example a skill that needs certain tools) |

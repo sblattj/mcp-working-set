@@ -36,6 +36,8 @@ export interface Config {
   listen: { host: string; port: number };
   stateDir: string;
   serverName: string;
+  /** Other MCP server names whose transcript calls count as usage: server key -> backend prefix. */
+  serverAliases: Record<string, string>;
   backendHints: Record<string, string>;
   pins: string[];
   pinFiles: string[];
@@ -59,6 +61,7 @@ export function defaultConfig(): Config {
     listen: { host: "127.0.0.1", port: 4484 },
     stateDir: expandHome("~/.local/state/mcp-working-set"),
     serverName: "toolbox",
+    serverAliases: {},
     backendHints: {},
     pins: [],
     pinFiles: [expandHome("~/.claude/skills/*/SKILL.md")],
@@ -111,6 +114,7 @@ export function resolveConfig(raw: unknown, source?: string): Config {
   }
   if (typeof raw.stateDir === "string" && raw.stateDir !== "") c.stateDir = resolve(expandHome(raw.stateDir));
   if (typeof raw.serverName === "string" && raw.serverName !== "") c.serverName = raw.serverName;
+  c.serverAliases = stringMap(raw.serverAliases) ?? c.serverAliases;
   c.backendHints = stringMap(raw.backendHints) ?? c.backendHints;
   c.pins = strings(raw.pins) ?? c.pins;
   const pinFiles = strings(raw.pinFiles);
